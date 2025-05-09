@@ -13,7 +13,7 @@ st.set_page_config(page_title="Dev's Subtitle Downloader", layout="centered")
 st.title("🎬 Dev's Filename-Based Subtitle Downloader")
 
 st.markdown("""
-Paste up to 10 video filenames below (one per input box).
+Paste up to 5 video filenames below (one per input box).
 The app will fetch English subtitles based on those names using matching metadata.
 """)
 
