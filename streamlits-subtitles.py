@@ -3,32 +3,31 @@ from subliminal import download_best_subtitles, save_subtitles, Video
 from babelfish import Language
 import logging
 import tempfile
-import os
 from pathlib import Path
-import shutil
 
 # Configure logging
 logging.getLogger('subliminal').setLevel(logging.CRITICAL)
 
 # Page setup
 st.set_page_config(page_title="Dev's Subtitle Downloader", layout="centered")
-
 st.title("🎬 Dev's Filename-Based Subtitle Downloader")
+
 st.markdown("""
-Upload a `.txt` file containing video filenames (one per line).
+Paste up to 10 video filenames below (one per input box).
 The app will fetch English subtitles based on those names using metadata matching.
 """)
 
-# File uploader
-uploaded_txt = st.file_uploader("📄 Upload your `video_list.txt`", type=["txt"])
+# Input for up to 10 filenames
+video_names = []
+for i in range(10):
+    filename = st.text_input(f"Video filename {i+1}")
+    if filename.strip():
+        video_names.append(filename.strip())
 
-# Process uploaded list
-if uploaded_txt:
+if video_names:
+    st.info(f"📋 {len(video_names)} file(s) entered.")
+
     with tempfile.TemporaryDirectory() as temp_dir:
-        lines = uploaded_txt.read().decode("utf-8").splitlines()
-        video_names = [line.strip() for line in lines if line.strip()]
-        st.info(f"📋 {len(video_names)} file(s) detected in list.")
-
         for name in video_names:
             st.write(f"🔍 Processing: **{name}**")
             try:
@@ -59,4 +58,4 @@ if uploaded_txt:
             except Exception as e:
                 st.error(f"❌ Error processing {name}: {e}")
 else:
-    st.info("⬆️ Upload your `video_list.txt` to get started.")
+    st.info("✏️ Enter at least one filename above to begin.")
