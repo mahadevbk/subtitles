@@ -1,0 +1,10 @@
+streamlit
+babelfish
+enzyme
+guessit
+pysrt
+chardet
+beautifulsoup4
+requests
+subliminal
+
