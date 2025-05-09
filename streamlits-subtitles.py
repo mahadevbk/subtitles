@@ -14,7 +14,7 @@ st.title("🎬 Dev's Filename-Based Subtitle Downloader")
 
 st.markdown("""
 Paste up to 10 video filenames below (one per input box).
-The app will fetch English subtitles based on those names using metadata matching.
+The app will fetch English subtitles based on those names using matching metadata.
 """)
 
 # Input for up to 10 filenames
