@@ -19,7 +19,7 @@ The app will fetch English subtitles based on those names using metadata matchin
 
 # Input for up to 10 filenames
 video_names = []
-for i in range(10):
+for i in range(5):
     filename = st.text_input(f"Video filename {i+1}")
     if filename.strip():
         video_names.append(filename.strip())
