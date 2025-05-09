@@ -1,62 +1,62 @@
-import os
-import tempfile
 import streamlit as st
 from subliminal import download_best_subtitles, save_subtitles, Video
 from babelfish import Language
 import logging
+import tempfile
+import os
 from pathlib import Path
+import shutil
 
-# Suppress subliminal log output
+# Configure logging
 logging.getLogger('subliminal').setLevel(logging.CRITICAL)
 
+# Page setup
 st.set_page_config(page_title="Dev's Subtitle Downloader", layout="centered")
 
-st.title("🎬 Dev's Subtitle Downloader")
-st.markdown("Upload one or more video files and the app will fetch and rename the best-matching **English** subtitles.")
+st.title("🎬 Dev's Filename-Based Subtitle Downloader")
+st.markdown("""
+Upload a `.txt` file containing video filenames (one per line).
+The app will fetch English subtitles based on those names using metadata matching.
+""")
 
 # File uploader
-uploaded_files = st.file_uploader("📂 Upload video files", type=["mp4", "mkv", "avi", "mov", "flv", "wmv", "webm"], accept_multiple_files=True)
+uploaded_txt = st.file_uploader("📄 Upload your `video_list.txt`", type=["txt"])
 
-if uploaded_files:
-    st.write(f"🔍 Processing {len(uploaded_files)} file(s)...")
+# Process uploaded list
+if uploaded_txt:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        lines = uploaded_txt.read().decode("utf-8").splitlines()
+        video_names = [line.strip() for line in lines if line.strip()]
+        st.info(f"📋 {len(video_names)} file(s) detected in list.")
 
-    for uploaded_file in uploaded_files:
-        # Write uploaded video to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=Path(uploaded_file.name).suffix) as temp_video:
-            temp_video.write(uploaded_file.read())
-            temp_video_path = temp_video.name
+        for name in video_names:
+            st.write(f"🔍 Processing: **{name}**")
+            try:
+                fake_path = Path(temp_dir) / name
+                fake_path.touch()  # Create empty file
 
-        st.write(f"📄 **{uploaded_file.name}**")
+                video = Video.fromname(str(fake_path))
+                subtitles = download_best_subtitles([video], {Language('eng')}, only_one=True)
 
-        try:
-            video = Video.fromname(temp_video_path)
-            subtitles = download_best_subtitles([video], {Language('eng')}, only_one=True)
+                if video in subtitles and subtitles[video]:
+                    save_subtitles(video, subtitles[video])
+                    subtitle_path = fake_path.with_suffix(".en.srt")
+                    final_name = Path(name).with_suffix(".srt")
 
-            if video in subtitles and subtitles[video]:
-                save_subtitles(video, subtitles[video])
-
-                subtitle_path = Path(temp_video_path).with_suffix(".en.srt")
-                final_subtitle_name = Path(uploaded_file.name).with_suffix(".srt")
-
-                if subtitle_path.exists():
-                    with open(subtitle_path, "rb") as sub_file:
-                        st.download_button(
-                            label=f"⬇️ Download subtitle for {uploaded_file.name}",
-                            data=sub_file,
-                            file_name=str(final_subtitle_name),
-                            mime="text/plain"
-                        )
-                        st.success("✅ Subtitle ready!")
-                    os.remove(subtitle_path)
+                    if subtitle_path.exists():
+                        with open(subtitle_path, "rb") as srt_file:
+                            st.download_button(
+                                label=f"⬇️ Download subtitle for: {name}",
+                                data=srt_file,
+                                file_name=final_name.name,
+                                mime="text/plain"
+                            )
+                            st.success(f"✅ Subtitle ready for: {name}")
+                    else:
+                        st.warning(f"⚠️ Subtitle saved but not found for: {name}")
                 else:
-                    st.warning("⚠️ Subtitle downloaded but could not be found or renamed.")
-            else:
-                st.error("❌ No matching subtitles found.")
-        except Exception as e:
-            st.error(f"❌ Error: {e}")
-
-        os.remove(temp_video_path)
-
+                    st.error(f"❌ No subtitles found for: {name}")
+            except Exception as e:
+                st.error(f"❌ Error processing {name}: {e}")
 else:
-    st.info("⬆️ Upload one or more video files to get started.")
-
+    st.info("⬆️ Upload your `video_list.txt` to get started.")
