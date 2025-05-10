@@ -14,7 +14,7 @@ st.title("🎬 Dev's Filename-Based Subtitle Downloader")
 
 st.markdown("""
 Paste up to 5 video filenames below (one per input box).
-The app will fetch English subtitles based on those names using matching metadata.
+The app will fetch English subtitles based on those names using matching metadata. { There is also a pure python script using tkinter that is more effective but needs to run on your local machine. Streamlit tries to upload all the files before it can process the complete metadata ; with a file upload limit of 200mb, this is unfeasible. Therefore, the streamlit version is limited to pasting file names to fetch data.
 """)
 
 # Input for up to 10 filenames
