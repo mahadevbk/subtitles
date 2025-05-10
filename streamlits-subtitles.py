@@ -63,3 +63,5 @@ if video_names:
                 st.error(f"❌ Error processing {name}: {e}")
 else:
     st.info("✏️ Enter at least one filename above to begin.")
+
+st.info("Built with ❤️ using [Streamlit](https://streamlit.io/) — free and open source. [Other Scripts by dev](https://devs-scripts.streamlit.app/) on Streamlit.")
